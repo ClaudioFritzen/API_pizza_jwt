@@ -1,0 +1,72 @@
+🧪 Lista de Testes e Resultados Esperados
+1. Cadastro de usuário
+✅ Deve permitir cadastrar um novo usuário com nome e email válidos.
+
+❌ Deve rejeitar cadastro com email inválido.
+
+❌ Deve rejeitar cadastro com nome vazio.
+
+❌ Deve impedir cadastro de email já existente.
+
+2. Autenticação
+✅ Deve autenticar usuário com email e senha corretos.
+
+❌ Deve falhar se a senha estiver incorreta.
+
+❌ Deve falhar se o email não estiver cadastrado.
+
+3. Atualização de perfil
+✅ Deve permitir atualizar nome e email.
+
+❌ Deve impedir atualização para email já usado por outro usuário.
+
+❌ Deve rejeitar atualizações com campos vazios.
+
+4. Remoção de usuário
+✅ Deve remover usuário existente.
+
+❌ Deve falhar ao tentar remover usuário inexistente.
+
+5. Listagem de usuários
+✅ Deve retornar todos os usuários cadastrados.
+
+✅ Deve retornar lista vazia se não houver usuários.
+
+🗂️ Estrutura de Diretórios
+Código
+meu_projeto/
+│
+├── app/
+│   ├── models/           # Modelos ORM (SQLAlchemy)
+│   ├── schemas/          # Pydantic schemas (validação e serialização)
+│   ├── crud/             # Funções de acesso ao banco (Create, Read, Update, Delete)
+│   ├── api/              # Rotas da aplicação (FastAPI endpoints)
+│   ├── core/             # Configurações (DB, segurança, etc.)
+│   └── main.py           # Ponto de entrada da aplicação
+│
+├── tests/
+│   ├── unit/             # Testes unitários
+│   ├── integration/      # Testes de integração
+│   └── conftest.py       # Fixtures para testes
+│
+├── alembic/              # Migrações do banco de dados
+│
+├── requirements.txt      # Dependências
+└── README.md             # Documentação do projeto
+
+
+🧪 Organização dos Testes
+Unitários: Testam funções isoladas (ex: validação de dados, lógica de negócio).
+
+Integração: Testam o comportamento entre módulos (ex: API + banco de dados).
+
+Fixtures: Criam dados temporários para os testes (ex: usuários fictícios).
+
+🧠 Fluxo de TDD
+Escrevemos o teste primeiro com base nos comportamentos que listamos.
+
+Executamos o teste e confirmamos que ele falha (porque ainda não há implementação).
+
+Implementamos o código mínimo necessário para passar o teste.
+
+Refatoramos se necessário, mantendo os testes verdes.

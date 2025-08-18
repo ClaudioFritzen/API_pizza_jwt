@@ -1,0 +1,45 @@
+🧭 Passo a passo para implementar FastAdmin com FastAPI
+1. Preparar o ambiente
+Crie um projeto FastAPI com estrutura organizada.
+
+Escolha e configure um ORM (como SQLAlchemy).
+
+Instale o FastAdmin com os pacotes necessários para FastAPI e seu ORM.
+
+2. Criar o modelo de usuário
+Use sua tabela de usuários existente (como Usuario) que já tem campos como email, senha e se é admin.
+
+Certifique-se de que a senha esteja criptografada (por exemplo, com bcrypt).
+
+Adicione um método para verificar a senha (comparar senha digitada com a armazenada).
+
+3. Configurar o painel admin
+Crie um arquivo específico para o painel (ex: admin_app.py).
+
+Importe o FastAdmin e configure a conexão com o banco.
+
+Configure o provedor de login para usar seu modelo de usuário.
+
+Inicialize o painel com essas configurações.
+
+4. Montar o painel na aplicação
+No arquivo principal (main.py), monte o painel na rota /admin.
+
+No evento de inicialização da aplicação, chame a função que inicializa o painel.
+
+5. Criar um usuário administrador
+Insira manualmente um usuário com permissões de admin no banco (via script ou migration).
+
+Certifique-se de que ele tenha email, senha criptografada e flag de admin ativada.
+
+6. Testar o login
+Acesse a rota /admin no navegador.
+
+Faça login com o usuário admin criado.
+
+Verifique se o painel está funcionando corretamente.
+
+7. Personalizar o painel (opcional)
+Adicione visualizações de modelos (como produtos, pedidos, etc.).
+
+Configure permissões, filtros e aparência conforme sua necessidade.
