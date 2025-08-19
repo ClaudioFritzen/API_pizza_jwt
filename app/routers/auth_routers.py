@@ -19,6 +19,8 @@ from datetime import datetime, timedelta, timezone
 # core
 from app.core.utils import verificar_token
 
+from fastapi.security import OAuth2PasswordRequestForm
+
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -83,6 +85,7 @@ def autenticar_usuario(email, senha, db):
     
     return usuario
 
+
 @auth_router.post("/login")
 async def login(login_schema: LoginSchema, db: SessionType = Depends(get_db)):
 
@@ -102,6 +105,22 @@ async def login(login_schema: LoginSchema, db: SessionType = Depends(get_db)):
         "token_type": "bearer"
     }
 
+### Salvando o token na api de login
+@auth_router.post("/login-form")
+async def login_form(dados_formulario: OAuth2PasswordRequestForm = Depends(), db: SessionType = Depends(get_db)):
+
+    usuario = autenticar_usuario(dados_formulario.username, dados_formulario.password, db)
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email ou senha inválidos!"
+        )
+    
+    access_token = criar_token(usuario.id)
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
 # rota se tiver logado
 
 @auth_router.get("/refresh")
