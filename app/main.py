@@ -13,5 +13,3 @@ app.include_router(order_router)
 
 # nossa rota de testes do usuarios
 app.include_router(usuarios.router)
-
-

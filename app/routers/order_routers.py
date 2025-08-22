@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.models.models import Pedido
+
 ## router
 from app.db.session import get_db
-from sqlalchemy.orm import Session as SessionType 
+from sqlalchemy.orm import Session as SessionType
 
 from app.schemas.schema_pedidos import PedidoSchema
 
 order_router = APIRouter(prefix="/pedidos", tags=["pedidos"])
+
 
 @order_router.post("/")
 async def pedidos():
@@ -30,4 +32,6 @@ async def criar_pedido(pedido_schema: PedidoSchema, db: SessionType = Depends(ge
 
     db.add(novo_pedido)
     db.commit()
-    return {"message": f"Pedido criado com sucesso para o usuário {pedido_schema.usuario_id}"}
+    return {
+        "message": f"Pedido criado com sucesso para o usuário {pedido_schema.usuario_id}"
+    }

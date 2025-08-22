@@ -1,7 +1,8 @@
 from sqlalchemy import Integer, String, Boolean, ForeignKey, Float, Enum, Index
 from sqlalchemy.orm import mapped_column, Mapped
 from app.db.session import Base
-#criptografia
+
+# criptografia
 from passlib.hash import bcrypt
 from dotenv import load_dotenv
 import os
@@ -18,14 +19,15 @@ bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # pedido
 # itenspedido
 
+
 class Usuario(Base):
     __tablename__ = "usuarios"
 
-    ## argumentos 
+    ## argumentos
     __table__args__ = (
         Index("ix_usuarios.id", "id"),
         Index("ix_usuarios.email", "email"),
-        Index("ix_usuarios.admin", "admin")
+        Index("ix_usuarios.admin", "admin"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -36,20 +38,21 @@ class Usuario(Base):
     admin: Mapped[bool] = mapped_column(Boolean, default=False)
 
     def set_password(self, senha_em_texto: str):
-        """ Criptografa a senha do usuário """
+        """Criptografa a senha do usuário"""
         self.senha = bcrypt_context.hash(senha_em_texto)
 
     def verificar_password(self, senha_digitada: str) -> bool:
-        """ Verifica se a senha informada confere com a senha armazenada """
+        """Verifica se a senha informada confere com a senha armazenada"""
         return bcrypt_context.verify(senha_digitada, self.senha)
+
 
 class Pedido(Base):
     __tablename__ = "pedidos"
 
     __table_args__ = (
-        Index("ix_pedidos.id", "id"), #order do pedido 
+        Index("ix_pedidos.id", "id"),  # order do pedido
         Index("ix_pedidos.status", "status"),
-        Index("ix_pedidos.usuario_id", "usuario_id"), # qual cliente pertence
+        Index("ix_pedidos.usuario_id", "usuario_id"),  # qual cliente pertence
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -57,12 +60,13 @@ class Pedido(Base):
     ## mais novo choices type
     status: Mapped[str] = mapped_column(
         Enum("pendente", "finalizado", "cancelado", name="status_enum"),
-        nullable=False, 
-        default="pendente"
+        nullable=False,
+        default="pendente",
     )
     usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"), nullable=False)
     preco: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     # itens
+
 
 class ItensPedido(Base):
     __tablename__ = "itens_pedido"

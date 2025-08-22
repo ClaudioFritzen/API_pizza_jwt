@@ -2,8 +2,8 @@ from pydantic import BaseModel
 from typing import Optional
 from pydantic import ConfigDict
 
-class UsuarioSchema(BaseModel):
 
+class UsuarioSchema(BaseModel):
 
     email: str
     nome: str

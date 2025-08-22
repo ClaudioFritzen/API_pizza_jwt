@@ -15,13 +15,17 @@ Base.metadata.create_all(bind=engine_test)
 
 # sobre escreve a sessão de teste
 
+
 def override_get_db():
     db = TestingSessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+
 app.dependency_overrides[get_db] = override_get_db
+
 
 @pytest.fixture(autouse=True)
 def limpar_usuarios():
@@ -39,7 +43,7 @@ class TestUsuario:
             "nome": "Claudio",
             "senha": "senha123",
             "ativo": True,
-            "admin": False
+            "admin": False,
         }
 
         response = cliente.post("/auth/criar_conta/", json=payload)
@@ -50,22 +54,21 @@ class TestUsuario:
         print("📥 Resposta recebida:", data)
 
         # verificar se os campos estao presentes
-        
+
         assert "id" in data
         assert data["email"] == payload["email"]
         assert data["nome"] == payload["nome"]
-           # Se o schema de resposta incluir 'ativo' e 'admin', também valide:
+        # Se o schema de resposta incluir 'ativo' e 'admin', também valide:
         if "ativo" in data:
             assert data["ativo"] == payload["ativo"]
         if "admin" in data:
             assert data["admin"] == payload["admin"]
 
-
     def test_email_unico(limpar_usuarios):
         payload = {
             "nome": "usuario unico",
             "email": "usuario_unico@teste.com",
-            "senha": "senha123"
+            "senha": "senha123",
         }
 
         print("🚀 Enviando POST para /auth/criar_conta/")
