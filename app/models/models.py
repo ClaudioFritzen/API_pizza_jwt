@@ -2,23 +2,10 @@ from sqlalchemy import Integer, String, Boolean, ForeignKey, Float, Enum, Index
 from sqlalchemy.orm import mapped_column, Mapped
 from app.db.session import Base
 
-# criptografia
-from passlib.hash import bcrypt
-from dotenv import load_dotenv
-import os
-from passlib.context import CryptContext
+from app.config import SECRET_KEY, crypt_context
 
-
-load_dotenv()
-SECRET_KEY = os.getenv("SECRET_KEY")
-bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# criar as classes/ tabelas do banco de dados
-
-# usuario
-# pedido
-# itenspedido
-
+SECRET_KEY = SECRET_KEY
+bcrypt_context = crypt_context
 
 class Usuario(Base):
     __tablename__ = "usuarios"

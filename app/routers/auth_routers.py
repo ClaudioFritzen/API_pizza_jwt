@@ -36,8 +36,11 @@ async def home():
     response_model=UsuarioResponseSchema,
     status_code=status.HTTP_201_CREATED,
 )
-async def criar_conta(usuario_schema: UsuarioSchema, db: SessionType = Depends(get_db)):
+async def criar_conta(usuario_schema: UsuarioSchema, db: SessionType = Depends(get_db), usuario: Usuario = Depends(verificar_token)):
 
+    if not usuario.admin:
+        raise HTTPException(status_code=403, detail="Acesso negado! Somente administradores podem criar contas.")
+    
     usuario_existente = (
         db.query(Usuario).filter(Usuario.email == usuario_schema.email).first()
     )
@@ -146,7 +149,10 @@ async def use_refresh_token(usuario: Usuario = Depends(verificar_token)):
 
 # delete account by id
 @auth_router.delete("/delete/{user_id}")
-async def delete_account_by_id(user_id: int, db: SessionType = Depends(get_db)):
+async def delete_account_by_id(user_id: int, db: SessionType = Depends(get_db), usuario: Usuario = Depends(verificar_token)):
+    if not usuario.admin:
+        raise HTTPException(status_code=403, detail="Acesso negado! Somente administradores podem deletar contas.")
+
     usuario = db.query(Usuario).filter(Usuario.id == user_id).first()
     if not usuario:
         raise HTTPException(
@@ -155,3 +161,13 @@ async def delete_account_by_id(user_id: int, db: SessionType = Depends(get_db)):
     db.delete(usuario)
     db.commit()
     return {"detail": "Conta deletada com sucesso"}
+
+
+@auth_router.get("/usuarios")
+async def listar_usuarios(db: SessionType = Depends(get_db), usuario: Usuario = Depends(verificar_token)):
+
+    if not usuario.admin:
+        raise HTTPException(status_code=403, detail="Acesso negado! Você não tem permissão para acessar essa rota.")
+    
+    usuarios = db.query(Usuario).all()
+    return usuarios
