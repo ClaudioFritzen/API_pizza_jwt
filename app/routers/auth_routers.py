@@ -72,7 +72,7 @@ def criar_token(
     usuario_id, duracao_token=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 ):
     """Função para criar um token JWT"""
-    data_expiracao = datetime.utcnow() + duracao_token
+    data_expiracao = datetime.now(timezone.utc) + duracao_token
 
     # id_usuario
     # data_expiracao
@@ -80,7 +80,7 @@ def criar_token(
     dict_info = {
         "sub": str(usuario_id),
         "exp": data_expiracao,
-        "iat": datetime.utcnow(),
+        "iat": datetime.now(timezone.utc),
     }
     jwt_codificado = jwt.encode(dict_info, SECRET_KEY, algorithm=ALGORITHM)
 
