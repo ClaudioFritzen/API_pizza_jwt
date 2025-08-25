@@ -1,30 +1,10 @@
-from fastapi.testclient import TestClient
-from app.db.session import Base, get_db
 from app.main import app
 from app.db.tests_db import TestingSessionLocal, engine_test
 from app.models.models import Usuario
 import pytest
 from app.schemas.schema_usuario import UsuarioSchema
+from tests.conftest import cliente, test_db_sessao
 
-cliente = TestClient(app)
-
-
-# Cria as tabelas no banco de dados
-Base.metadata.create_all(bind=engine_test)
-
-
-# sobre escreve a sessão de teste
-
-
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
 
 
 @pytest.fixture(autouse=True)
@@ -34,50 +14,58 @@ def limpar_usuarios():
     db.commit()
     db.close()
 
+# TDD com usuario admin para criar as contas
 
-class TestUsuario:
 
-    def test_usuario_valido(limpar_usuarios):
-        payload = {
-            "email": "claudiosilva@pizza.com",
-            "nome": "Claudio",
-            "senha": "senha123",
-            "ativo": True,
-            "admin": False,
-        }
 
-        response = cliente.post("/auth/criar_conta/", json=payload)
+def criar_usuario_admin(test_db_sessao):
+    from app.models.models import Usuario
 
-        assert response.status_code in [201, 200]
+    admin = Usuario(
+        email="admin@pizza.com",
+        nome="Admin",
+        senha="senha123",
+        ativo=True,
+        admin=True
+    )
+    admin.set_password("senha123")
+    test_db_sessao.add(admin)
+    test_db_sessao.commit()
+    test_db_sessao.refresh(admin)
 
-        data = response.json()
-        print("📥 Resposta recebida:", data)
+def test_criar_usuario_admin(cliente, test_db_sessao):
+    criar_usuario_admin(test_db_sessao)
 
-        # verificar se os campos estao presentes
+def test_login_admin(cliente, test_db_sessao):
+    # cria o admin no db
+    test_criar_usuario_admin(cliente, test_db_sessao)
 
-        assert "id" in data
-        assert data["email"] == payload["email"]
-        assert data["nome"] == payload["nome"]
-        # Se o schema de resposta incluir 'ativo' e 'admin', também valide:
-        if "ativo" in data:
-            assert data["ativo"] == payload["ativo"]
-        if "admin" in data:
-            assert data["admin"] == payload["admin"]
+    # Faz o login com email e senha
+    response = cliente.post("/auth/login/", json={
+        "email": "admin@pizza.com",
+        "senha": "senha123"
+    })
 
-    def test_email_unico(limpar_usuarios):
-        payload = {
-            "nome": "usuario unico",
-            "email": "usuario_unico@teste.com",
-            "senha": "senha123",
-        }
+    print(f"🔐 Status: {response.status_code}")
+    print(f"🔐 Resposta: {response.json()}")
 
-        print("🚀 Enviando POST para /auth/criar_conta/")
-        response = cliente.post("/auth/criar_conta/", json=payload)
-        data = response.json()
-        print("📥 Resposta recebida:", data)
+    # Verifica se o token foi gerado
+    assert response.status_code == 200
+    assert "access_token" in response.json()
 
-        assert response.status_code in [201, 200]
-        assert data["email"] == "usuario_unico@teste.com"
-        assert data["nome"] == "usuario unico"
-        assert data["ativo"] is True
-        assert data["admin"] is False
+""" 
+def test_criar_conta_com_admin(self, cliente, test_db_sessao):
+    print("🚀 Iniciando teste de criação de admin")
+
+    # 1️⃣ Criar usuário admin
+    test_criar_usuario_admin(test_db_sessao)
+    print("✅ Função criar_usuario_admin executada")
+
+    # 2️⃣ Obter token via login
+    token = test_obter_token_admin(cliente)
+    print(f"🔐 Token recebido: {token}")
+
+    # 3️⃣ Verificar se o token é válido
+    assert token is not None
+    print("✅ Teste passou: token foi gerado com sucesso")
+ """
