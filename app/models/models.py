@@ -1,5 +1,5 @@
 from sqlalchemy import Integer, String, Boolean, ForeignKey, Float, Enum, Index
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from app.db.session import Base
 
 from app.config import SECRET_KEY, crypt_context
@@ -52,7 +52,13 @@ class Pedido(Base):
     )
     usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"), nullable=False)
     preco: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
-    # itens
+    ## Criando uma realation ship
+    itens = relationship("ItensPedido", cascade="all, delete")
+
+    def calcular_preco_total(self):
+        total = sum(item.preco_unitario * item.quantidade for item in self.itens)
+        self.preco = total
+        return self.preco
 
 
 class ItensPedido(Base):

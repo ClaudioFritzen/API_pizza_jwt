@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.models.models import Pedido
+from app.models.models import Pedido, ItensPedido
 
 ## router
 from app.db.session import get_db
@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session as SessionType
 from app.schemas.schema_pedidos import PedidoSchema
 from app.core.utils import verificar_token
 from app.models.models import Usuario
+from app.schemas.pedidos.schema_pedido_item import ItemPedidoSchema
+
 order_router = APIRouter(prefix="/pedidos", tags=["pedidos"], dependencies=[Depends(verificar_token)])
 
 
@@ -83,4 +85,45 @@ async def listar_pedidos(db: SessionType = Depends(get_db), usuario: Usuario = D
     if not usuario.admin:
         raise HTTPException(status_code=403, detail="Acesso negado! Apenas administradores podem listar todos os pedidos.")
     pedidos = db.query(Pedido).all()
+    return {"pedidos": pedidos}
+
+
+@order_router.post("/pedido/adicionar-item/{id_pedido}")
+async def adicionar_item_pedido(id_pedido: int,
+                                item_pedido_schema: ItemPedidoSchema, 
+                                db: SessionType = Depends(get_db),
+                                usuario: Usuario = Depends(verificar_token)):
+    
+    # garantir se usuario esta fazendo requisicao 
+    pedido = db.query(Pedido).filter(Pedido.id == id_pedido).first()
+
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido não encontrado")
+
+    if not usuario.admin and usuario.id != pedido.usuario_id:
+        raise HTTPException(status_code=403, detail="Acesso negado! Você não tem permissão para adicionar itens a este pedido.")
+
+    # Adicionar item ao pedido
+    novo_item = ItensPedido(**item_pedido_schema.dict(), pedido_id=id_pedido)
+
+    db.add(novo_item)
+    db.commit()
+    db.refresh(novo_item)
+    
+    pedido.calcular_preco_total()
+    db.commit()
+
+    return {"detail": "Item adicionado ao pedido com sucesso",
+            "item": novo_item.id,
+            "itens": pedido.itens,
+            "preco_total": pedido.preco
+            }
+
+@order_router.get("/meus_pedidos/")
+async def meus_pedidos(db: SessionType = Depends(get_db),
+                        usuario: Usuario = Depends(verificar_token)):
+    """
+    Essa é a rota para listar os pedidos de um usuário específico.
+    """
+    pedidos = db.query(Pedido).filter(Pedido.usuario_id == usuario.id).all()
     return {"pedidos": pedidos}
