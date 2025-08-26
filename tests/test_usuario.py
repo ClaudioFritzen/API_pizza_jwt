@@ -47,25 +47,35 @@ def test_login_admin(cliente, test_db_sessao):
     })
 
     print(f"🔐 Status: {response.status_code}")
-    print(f"🔐 Resposta: {response.json()}")
+    print(f"🔐 Resposta: {response.json()}") 
 
     # Verifica se o token foi gerado
     assert response.status_code == 200
     assert "access_token" in response.json()
 
-""" 
-def test_criar_conta_com_admin(self, cliente, test_db_sessao):
-    print("🚀 Iniciando teste de criação de admin")
+def test_criar_usuario_comun(cliente, test_db_sessao):
+    criar_usuario_admin(test_db_sessao)
 
-    # 1️⃣ Criar usuário admin
-    test_criar_usuario_admin(test_db_sessao)
-    print("✅ Função criar_usuario_admin executada")
+    # login para obter o token
+    response = cliente.post("/auth/login/", json={
+        "email": "admin@pizza.com",
+        "senha": "senha123"
+    })
 
-    # 2️⃣ Obter token via login
-    token = test_obter_token_admin(cliente)
-    print(f"🔐 Token recebido: {token}")
-
-    # 3️⃣ Verificar se o token é válido
-    assert token is not None
-    print("✅ Teste passou: token foi gerado com sucesso")
- """
+    # Criar novo usuario
+    response = cliente.post("/auth/criar_conta", json={
+        "email": "usuario@pizza.com",
+        "nome": "Usuario",
+        "senha": "novotest",
+        "admin": False,
+        "ativo": True
+    },
+        headers={"Authorization": f"Bearer {response.json()['access_token']}"}
+    )
+    assert response.status_code == 201
+    print("Usuario criado com sucesso")
+    dados = response.json()
+    assert dados["email"] == "usuario@pizza.com"
+    assert dados["nome"] == "Usuario"
+    assert dados["admin"] == False
+    assert dados["ativo"] == True
