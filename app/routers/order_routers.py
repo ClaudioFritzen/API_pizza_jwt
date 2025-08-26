@@ -22,10 +22,24 @@ async def pedidos():
 
 
 @order_router.post("/criar_pedido")
-async def criar_pedido(pedido_schema: PedidoSchema, db: SessionType = Depends(get_db)):
+async def criar_pedido(pedido_schema: PedidoSchema, db: SessionType = Depends(get_db), usuario: Usuario = Depends(verificar_token)):
     """
     Essa é a rota para criar um novo pedido.
     """
+    # [x] verificar se o usuario existe
+    # [x] pegar o id e ver se existe esse usuario
+    # [x] vericar se quem fez o pedido é adm ou é igual id dele
+    # [x] Vamos burcar no db se o usuario existe
+
+    usuario_existe = db.query(Usuario).filter(Usuario.id == pedido_schema.usuario_id).first()
+
+    if not usuario_existe:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+
+    ## Verifica se o id de quem esta fazendo a solicitacao do pedido é o mesmo que o id do usuario
+    if not usuario.admin and usuario.id != pedido_schema.usuario_id:
+        raise HTTPException(status_code=403, detail="Acesso negado! Você não tem permissão para criar este pedido.")
+
     if not pedido_schema.usuario_id:
         raise HTTPException(status_code=400, detail="ID do usuário é obrigatório")
 
@@ -61,4 +75,12 @@ async def cancelar_pedido(id_pedido: int, db: SessionType = Depends(get_db), usu
             "pedido": pedido
     }
 
-# parametro para pegar o usuario
+@order_router.get("/listar_pedidos")
+async def listar_pedidos(db: SessionType = Depends(get_db), usuario: Usuario = Depends(verificar_token)):
+    """
+    Essa é a rota para listar todos os pedidos.
+    """
+    if not usuario.admin:
+        raise HTTPException(status_code=403, detail="Acesso negado! Apenas administradores podem listar todos os pedidos.")
+    pedidos = db.query(Pedido).all()
+    return {"pedidos": pedidos}
