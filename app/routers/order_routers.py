@@ -127,3 +127,29 @@ async def meus_pedidos(db: SessionType = Depends(get_db),
     """
     pedidos = db.query(Pedido).filter(Pedido.usuario_id == usuario.id).all()
     return {"pedidos": pedidos}
+
+
+@order_router.post("/pedido/remover-item/{id_item_pedido}")
+async def remover_item_pedido(id_item_pedido: int,
+                                db: SessionType = Depends(get_db),
+                                usuario: Usuario = Depends(verificar_token)):
+    
+    # garantir se usuario esta fazendo requisicao 
+    item_pedido = db.query(ItensPedido).filter(ItensPedido.id == id_item_pedido).first()
+    if not item_pedido:
+        raise HTTPException(status_code=404, detail="Item não encontrado")
+
+    pedido = db.query(Pedido).filter(Pedido.id == item_pedido.pedido_id).first()
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido não encontrado")
+
+    if not usuario.admin and usuario.id != pedido.usuario_id:
+        raise HTTPException(status_code=403, detail="Acesso negado! Você não tem permissão para remover itens deste pedido.")
+
+    db.delete(item_pedido)
+    pedido.calcular_preco_total()
+    db.commit()
+
+    return {"detail": "Item removido do pedido com sucesso",
+            "preco_total": pedido.preco
+            }
