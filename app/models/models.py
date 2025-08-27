@@ -53,7 +53,7 @@ class Pedido(Base):
     usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"), nullable=False)
     preco: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     ## Criando uma realation ship
-    itens = relationship("ItensPedido", cascade="all, delete")
+    itens = relationship("ItensPedido", back_populates="pedido", cascade="all, delete")
 
     def calcular_preco_total(self):
         total = sum(item.preco_unitario * item.quantidade for item in self.itens)
@@ -75,6 +75,7 @@ class ItensPedido(Base):
     tamanho: Mapped[str] = mapped_column(String, nullable=False)
     preco_unitario: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     pedido_id: Mapped[int] = mapped_column(ForeignKey("pedidos.id"), nullable=False)
+    pedido = relationship("Pedido", back_populates="itens") 
 
 
 # executar a criacao dos metadados do  seu banco (criar efetivamente o db)
