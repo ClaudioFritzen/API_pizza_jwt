@@ -1,0 +1,4 @@
+Remove-Item .\real.db
+Remove-Item .\alembic\versions\*.py
+alembic revision --autogenerate -m "initial"
+alembic upgrade head
