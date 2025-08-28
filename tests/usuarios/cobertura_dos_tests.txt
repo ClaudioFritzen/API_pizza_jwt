@@ -1,0 +1,65 @@
+✅ Testes que devem passar
+
+Admin cria usuário comum com sucesso
+
+[x] Verifica se o status é 201 Created
+
+[] Confirma que admin=False no usuário criado
+
+[] Admin cria outro admin
+
+[] Verifica se o campo admin=True é aceito
+
+[] Confirma que o criador é realmente admin
+
+[] Admin cria usuário com todos os campos válidos
+
+[] Inclui campos como ativo=True, nome, email, senha
+
+[] Verifica se todos os dados são persistidos corretamente
+
+❌ Testes que devem falhar
+Usuário comum tenta criar qualquer tipo de usuário
+
+Espera 403 Forbidden
+
+Mensagem: "Somente administradores podem criar usuários."
+
+Requisição sem autenticação
+
+Espera 401 Unauthorized
+
+Verifica que o token é obrigatório
+
+Admin tenta criar usuário com email já existente
+
+Espera 409 Conflict
+
+Mensagem: "Email já cadastrado!"
+
+Admin envia dados inválidos (ex: email mal formatado)
+
+Espera 422 Unprocessable Entity
+
+Verifica que a validação do schema está funcionando
+
+Admin envia senha muito curta ou fraca
+
+Espera erro de validação (se houver regra de força de senha)
+
+🧪 Testes extras para robustez
+Admin cria usuário com nome contendo caracteres especiais
+
+Verifica se o sistema aceita nomes como “José da Silva!”
+
+Admin cria usuário com campo ativo=False
+
+Verifica se o usuário é criado mas marcado como inativo
+
+Admin cria usuário e verifica se senha foi criptografada
+
+Consulta o banco e garante que a senha não está em texto plano
+
+Admin cria usuário e verifica se ele aparece em uma listagem
+
+Integração com rota de listagem (GET /usuarios)
