@@ -156,3 +156,48 @@ async def remover_item_pedido(id_item_pedido: int,
     return {"detail": "Item removido do pedido com sucesso",
             "preco_total": pedido.preco
             }
+
+
+
+# finalizar pedido
+@order_router.post("pedido/finalizar/{id_pedido}")
+async def finalizar_pedido(id_pedido: int, db: SessionType = Depends(get_db), usuario: Usuario = Depends(verificar_token)):
+
+    ## usuario.admin = True
+    # usuario.id = pedido.usuario_id
+
+    pedido = db.query(Pedido).filter(Pedido.id == id_pedido).first()
+
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido não encontrado")
+
+    if pedido.status == "cancelado":
+        raise HTTPException(status_code=400, detail="Pedido já está cancelado")
+
+    if not usuario.admin and usuario.id != pedido.usuario_id:
+        raise HTTPException(status_code=403, detail="Acesso negado! Você não tem permissão para cancelar este pedido.")
+
+    pedido.status = "finalizado"
+
+    db.commit()
+    return {"detail": f"Pedido {pedido.id} finalizado com sucesso",
+            "pedido": pedido
+    }
+
+
+# Visualizar um pedido especifico
+@order_router.get("/pedido/{id_pedido}")
+async def visualizar_pedido(id_pedido: int, db: SessionType = Depends(get_db), usuario: Usuario = Depends(verificar_token)):
+    """
+    Essa é a rota para visualizar um pedido específico.
+    """
+    pedido = db.query(Pedido).filter(Pedido.id == id_pedido).first()
+
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido não encontrado")
+
+    if not usuario.admin and usuario.id != pedido.usuario_id:
+        raise HTTPException(status_code=403, detail="Acesso negado! Você não tem permissão para visualizar este pedido.")
+
+    return {"quantidade_itens_pedido": len(pedido.itens),
+            "pedido": pedido}
