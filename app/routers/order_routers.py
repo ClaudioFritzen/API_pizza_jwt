@@ -10,6 +10,8 @@ from app.schemas.schema_pedidos import PedidoSchema
 from app.core.utils import verificar_token
 from app.models.models import Usuario
 from app.schemas.pedidos.schema_pedido_item import ItemPedidoSchema
+from app.schemas.pedidos.schema_resposta_pedido import RespostaPedidoSchema
+from typing import List
 
 order_router = APIRouter(prefix="/pedidos", tags=["pedidos"], dependencies=[Depends(verificar_token)])
 
@@ -119,14 +121,14 @@ async def adicionar_item_pedido(id_pedido: int,
             "preco_total": pedido.preco
             }
 
-@order_router.get("/meus_pedidos/")
+@order_router.get("/meus_pedidos/", response_model=List[RespostaPedidoSchema])
 async def meus_pedidos(db: SessionType = Depends(get_db),
                         usuario: Usuario = Depends(verificar_token)):
     """
     Essa é a rota para listar os pedidos de um usuário específico.
     """
     pedidos = db.query(Pedido).filter(Pedido.usuario_id == usuario.id).all()
-    return {"pedidos": pedidos}
+    return pedidos
 
 
 @order_router.delete("/pedido/remover-item/{id_item_pedido}")
