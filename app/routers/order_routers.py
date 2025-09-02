@@ -7,7 +7,7 @@ from app.db.session import get_db
 from sqlalchemy.orm import Session as SessionType
 
 from app.schemas.schema_pedidos import PedidoSchema
-from app.core.utils import verificar_token
+from app.jwt.jwt_handler import verificar_token
 from app.models.models import Usuario
 from app.schemas.pedidos.schema_pedido_item import ItemPedidoSchema
 from app.schemas.pedidos.schema_resposta_pedido import RespostaPedidoSchema
@@ -55,7 +55,7 @@ async def criar_pedido(pedido_schema: PedidoSchema, db: SessionType = Depends(ge
         "message": f"Pedido criado com sucesso para o usuário {pedido_schema.usuario_id}"
     }
 
-@order_router.post("pedido/cancelar/{id_pedido}")
+@order_router.post("/pedido/cancelar/{id_pedido}")
 async def cancelar_pedido(id_pedido: int, db: SessionType = Depends(get_db), usuario: Usuario = Depends(verificar_token)):
 
     ## usuario.admin = True
@@ -162,7 +162,7 @@ async def remover_item_pedido(id_item_pedido: int,
 
 
 # finalizar pedido
-@order_router.post("pedido/finalizar/{id_pedido}")
+@order_router.post("/pedido/finalizar/{id_pedido}")
 async def finalizar_pedido(id_pedido: int, db: SessionType = Depends(get_db), usuario: Usuario = Depends(verificar_token)):
 
     ## usuario.admin = True
