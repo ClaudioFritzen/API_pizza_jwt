@@ -22,5 +22,5 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login-form")
 
 
 # Cria a engine do banco de dados
-DATABASE_URL = "sqlite:///./real.db"  # Pode ser movido para config.py futuramente
-DATABASE_URL_TEST = "sqlite:///./test.db"
+DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL_TEST = os.getenv("DATABASE_URL_TEST")

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy import create_engine
+from app.config import DATABASE_URL
 
 
 # Define a base declarativa para os modelos
@@ -8,8 +9,6 @@ class Base(DeclarativeBase):
 
 
 # Cria a engine do banco de dados
-DATABASE_URL = "sqlite:///./real.db"  # Pode ser movido para config.py futuramente
-DATABASE_URL_TEST = "sqlite:///./test.db"
 engine = create_engine(DATABASE_URL, echo=False)
 
 # Cria a fábrica de sessões

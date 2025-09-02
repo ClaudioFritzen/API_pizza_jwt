@@ -1,16 +1,10 @@
 from app.models.models import Usuario
 from app.db.session import Session
-from dotenv import load_dotenv
-import os
-from passlib.context import CryptContext
+from app.config import ADM_PASSWORD, ADM_USER, crypt_context
 
-load_dotenv()
+ADM_EMAIL = ADM_USER
+ADM_PASSWORD = ADM_PASSWORD
 
-ADM_EMAIL = os.getenv("ADM_USER")
-ADM_PASSWORD = os.getenv("ADM_PASSWORD")
-
-
-bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def create_initial_admin():
     db = Session()
@@ -21,7 +15,7 @@ def create_initial_admin():
         if existing_admin:
             print("Admin já existe.")
             return
-        hashed_password = bcrypt_context.hash(ADM_PASSWORD)
+        hashed_password = crypt_context.hash(ADM_PASSWORD)
         admin_user = Usuario(
             nome = "Admin Inicial",
             email = ADM_EMAIL,
