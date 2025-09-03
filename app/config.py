@@ -3,7 +3,7 @@ import os
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 
-load_dotenv()
+load_dotenv(encoding="utf-8")
 
 # Segurança
 SECRET_KEY = os.getenv("SECRET_KEY")

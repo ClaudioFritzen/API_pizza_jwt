@@ -11,17 +11,18 @@ def create_initial_admin():
 
     try:
         # Verifica se já existe um admin com esse email
-        existing_admin = db.query(Usuario).filter(Usuario.email == ADM_EMAIL).first()
+        existing_admin = db.query(Usuario).filter(
+            Usuario.email == ADM_EMAIL).first()
         if existing_admin:
             print("Admin já existe.")
             return
         hashed_password = crypt_context.hash(ADM_PASSWORD)
         admin_user = Usuario(
-            nome = "Admin Inicial",
-            email = ADM_EMAIL,
-            senha = hashed_password,
-            admin = True,
-            ativo = True
+            nome="Admin Inicial",
+            email=ADM_EMAIL,
+            senha=hashed_password,
+            admin=True,
+            ativo=True
         )
         db.add(admin_user)
         db.commit()
