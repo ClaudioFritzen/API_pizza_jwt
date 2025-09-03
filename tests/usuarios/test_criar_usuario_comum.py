@@ -1,11 +1,10 @@
-from urllib import response
+
 from tests.usuarios.test_criar_admin import criar_usuario_admin
 from dotenv import load_dotenv
 import os
 import pytest
 from app.models.models import Usuario
 load_dotenv()
-
 
 def test_criar_usuario_comum__como_administrador(cliente, test_db_sessao):
     criar_usuario_admin(test_db_sessao)
@@ -91,6 +90,7 @@ def test_criar_usuario_com_email_existente(cliente, test_db_sessao):
         #headers={"Authorization": f"Bearer {response.json()['access_token']}"}
         headers={"Authorization": f"Bearer {token}"}
     )
+    print("Resposta ao tentar criar usuario com email duplicado:", response2.json())
     assert response2.status_code == 409
     assert response2.json()["detail"] == "Email já cadastrado!"
 
