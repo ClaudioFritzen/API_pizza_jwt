@@ -38,7 +38,10 @@ def create_token_access_token(
 def verificar_token(
     token: str = Depends(oauth2_scheme), session: SessionType = Depends(get_db)
 ):
-
+    # Trata múltiplos tokens enviados juntos
+    if ',' in token:
+        token = token.split(',')[0].strip()  # Assume que o primeiro é o access_token
+        
     try:
         dic_info = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         usuario_id = int(dic_info.get("sub"))
@@ -70,10 +73,6 @@ def verificar_refresh_token(
         token = token.split(',')[1].strip()  # Pega só o refresh_token
         print(f"🧹 Token corrigido: {token[:60]}...")
         
-    # DEBUG: Exibir chave secreta e algoritmo
-    print(f"🔑 SECRET_KEY usada: {SECRET_KEY}")
-    print(f"⚙️ Algoritmo usado: {ALGORITHM}")
-
     try:
         dic_info = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         print(f"📤 Payload decodificado: {dic_info}")
@@ -81,7 +80,7 @@ def verificar_refresh_token(
         print(f"🧑 ID extraído do token: {usuario_id}")
 
     except JWTError as erro:
-        print(f"❌ Erro ao decodificar o token: {erro}")
+        print(f"❌ Erro [EXPERADO] ao decodificar o token: {erro}")
         raise HTTPException(
             status_code=401,
             detail=f"Acesso Negado, verifique a validade do token: {erro}",
