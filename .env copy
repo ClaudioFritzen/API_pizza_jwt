@@ -1,0 +1,16 @@
+#https://acte.ltd/utils/randomkeygen
+
+SECRET_KEY=geresuasenha
+
+# JWT 
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+
+
+## para iniciar o db ja com um adm
+ADM_USER=crie seu email de adm
+ADM_PASSWORD= sua senha
+
+
+DATABASE_URL_TEST = sua rota para o banco de dados de teste
