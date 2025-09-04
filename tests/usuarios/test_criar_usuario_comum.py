@@ -6,8 +6,8 @@ import pytest
 from app.models.models import Usuario
 load_dotenv()
 
-def test_criar_usuario_comum__como_administrador(cliente, test_db_sessao):
-    criar_usuario_admin(test_db_sessao)
+def test_criar_usuario_comum__como_administrador(cliente):
+    criar_usuario_admin()
     email = os.getenv("ADM_USER")
     senha = os.getenv("ADM_PASSWORD")
     # login para obter o token
@@ -30,8 +30,8 @@ def test_criar_usuario_comum__como_administrador(cliente, test_db_sessao):
 
 
 
-def test_criar_usuario_comum(cliente, test_db_sessao):
-    criar_usuario_admin(test_db_sessao)
+def test_criar_usuario_comum(cliente):
+    criar_usuario_admin()
     email = os.getenv("ADM_USER")
     senha = os.getenv("ADM_PASSWORD")
     # login para obter o token
@@ -54,8 +54,8 @@ def test_criar_usuario_comum(cliente, test_db_sessao):
     print("Usuario criado com sucesso")
     
 #@pytest.mark.xfail(reason="Email duplicado não pode ser cadastrado")
-def test_criar_usuario_com_email_existente(cliente, test_db_sessao):
-    criar_usuario_admin(test_db_sessao)
+def test_criar_usuario_com_email_existente(cliente):
+    criar_usuario_admin()
     email = os.getenv("ADM_USER")
     senha = os.getenv("ADM_PASSWORD")
 
